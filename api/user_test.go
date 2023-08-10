@@ -197,7 +197,7 @@ func TestCreateUserAPI(t *testing.T) {
 	}
 }
 
-func testLoginUserAPI(t *testing.T) {
+func TestLoginUserAPI(t *testing.T) {
 	user, password := randomUser(t)
 	testCases := []struct {
 		name          string
@@ -216,6 +216,9 @@ func testLoginUserAPI(t *testing.T) {
 					GetUser(gomock.Any(), gomock.Eq(user.Username)).
 					Times(1).
 					Return(user, nil)
+				store.EXPECT().
+					CreateSession(gomock.Any(), gomock.Any()).
+					Times(1)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -231,7 +234,7 @@ func testLoginUserAPI(t *testing.T) {
 				store.EXPECT().
 					GetUser(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(db.User{}, sql.ErrNoRows.Error())
+					Return(db.User{}, sql.ErrNoRows)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
@@ -250,7 +253,7 @@ func testLoginUserAPI(t *testing.T) {
 					Return(db.User{}, sql.ErrConnDone)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
 		{
@@ -266,7 +269,7 @@ func testLoginUserAPI(t *testing.T) {
 					Return(user, nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
 			},
 		},
 		{
