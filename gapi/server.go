@@ -7,6 +7,7 @@ import (
 	"github.com/zura-t/simplebank/pb"
 	"github.com/zura-t/simplebank/token"
 	"github.com/zura-t/simplebank/utils"
+	"github.com/zura-t/simplebank/worker"
 )
 
 type Server struct {
@@ -14,9 +15,10 @@ type Server struct {
 	store      db.Store
 	config     utils.Config
 	tokenMaker token.Maker
+	taskDistributor worker.TaskDistributor
 }
 
-func NewServer(config utils.Config, store db.Store) (*Server, error) {
+func NewServer(config utils.Config, store db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
 	tokenMaker, err := token.NewJwtMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("can't create token maker: %w", err)
@@ -25,6 +27,7 @@ func NewServer(config utils.Config, store db.Store) (*Server, error) {
 		store:      store,
 		tokenMaker: tokenMaker,
 		config:     config,
+		taskDistributor: taskDistributor,
 	}
 
 	return server, nil
