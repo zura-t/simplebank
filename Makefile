@@ -7,6 +7,9 @@ createdb:
 dropdb:
 	docker exec -it postgres dropdb simple_bank
 
+new_migration:
+	migrate create -ext sql -dir db/migration -seq $(name)
+
 migrateup:
 	migrate -path db/migrations -database "postgresql://root:secret@localhost:5423/simple_bank?sslmode=disable" -verbose up
 
@@ -23,7 +26,7 @@ sqlc:
 	docker run --rm -v ${PWD}:/src -w /src kjconroy/sqlc generate
 
 test:
-	go test -v -cover ./...
+	go test -v -cover -short ./...
 
 server:
 	go run main.go
@@ -45,4 +48,4 @@ evans:
 redis:
 	docker run --name redis -p 6379:6379 -d redis:latest
 
-.PHONY: postgres test sqlc createdb dropdb mock proto migratedown migrateup migratedown2 migrateup1 server evans redis
+.PHONY: postgres test sqlc createdb dropdb mock proto new_migration migratedown migrateup migratedown2 migrateup1 server evans redis

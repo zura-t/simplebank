@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "create_user.proto";
 import "login_user.proto";
 import "update_user.proto";
+import "verify_emails.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/zura-t/simplebank/pb";
@@ -13,7 +14,7 @@ option go_package = "github.com/zura-t/simplebank/pb";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "Simple Bank api";
-    version: "1.2";
+    version: "1.3";
   };
 };
 
@@ -36,6 +37,15 @@ service MainService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
 			description: "Use this API to login user and get access token & refresh token";
 			summary: "Login user";
+    };
+  }
+  rpc VerifyEmails (VerifyEmailRequest) returns (VerifyEmailResponse) {
+    option (google.api.http) = {
+      get: "/v1/verify_email"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			description: "Use this API to verify user's email";
+			summary: "Verify email";
     };
   }
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
